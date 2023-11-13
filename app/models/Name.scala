@@ -36,6 +36,5 @@ class NameTable(tag: Tag) extends Table[Name](tag, "name") {
 val names = TableQuery[NameTable]
 
 val nameNumber = SimpleLiteral[Int]("ROW_NUMBER() OVER(PARTITION BY person_id ORDER BY id DESC)")
-val namesNumbers = names.map(n => (n, nameNumber))
-val namesNumbered = names.join(namesNumbers).on({ case (n, (nn, _)) => n.id === nn.id })
-val primaryNames = namesNumbered.filter({ case (n, (_, no)) => no === 1 }).map(_._1)
+var namesNumbered = names.map(n => (n, nameNumber)).subquery
+val primaryNames = namesNumbered.filter(_._2 === 1).map(_._1)
